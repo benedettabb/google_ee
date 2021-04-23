@@ -1,5 +1,6 @@
 
 library(rgee)
+library (raster)
 ee_Initialize()
 
 #visualizzare dati landsat su R usando GEE API
