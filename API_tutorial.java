@@ -260,3 +260,57 @@ print(serverConditional);
 //mi dice che è lato server infatti è corretto
 
 
+
+//----FOR LOOPS----------------------------------------------------------------------------------------------------------------------------------------------
+
+//invece di usare i loop con for si utilizza la funzione map
+// creo un lista con numeri da 1 a 10
+var mylist = ee.List.sequence (1,10)
+print (mylist)
+
+// creo una funzione che da per risultato il quadrato di ogni numero
+var funzione = function (n){
+  return ee.Number(n).pow(2);
+}
+
+//utilizzo map per applicare quella funzione ad ogni elemento della lista
+//.map si attacca ad ogni elemento della lista e dentro le parentesi 
+//ci va la funzione
+var squares = mylist.map (funzione)
+print (squares)
+  
+  
+//-----IF ELSE CONDITION-----------------------------------------------------------------------------------------------------------------------------------------------
+
+//invece di usare if else si utilizza la funzione map
+
+//se voglio elevare al quadrato i numeri dispari nella lista
+var mylist = ee.List.sequence (1,10)
+
+var numeri_dispari = function(n) {
+  n = ee.Number(n) //necessario esplicitarlo per usare mod
+  //mod(2) restituisce 0 se il numero è paro e uno se è disparo (divide per 2)
+  var remainder = n.mod(2)
+  return n.multiply (remainder);
+}
+
+
+//creo una lista con i numeri dispari e i numeri pari (messi a 0)
+var newlist = mylist.map(numeri_dispari)
+print(newlist)
+
+//cancello i numeri 0 con la funzione removeAll
+var disparilist = newlist.removeAll([0])
+print (disparilist)
+
+//creo la funzione per elevare al quadrato i numeri
+var potenza = function (n){
+  return ee.Number(n).pow(2);
+}
+
+var list_potenza = disparilist.map (potenza)
+print (list_potenza)
+
+  
+  
+
