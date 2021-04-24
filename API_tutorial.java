@@ -236,5 +236,27 @@ var convertedList = ee.List(clientList);
 print (convertedList)
   
 //CONDITIONALS
-  
+ 
+//creo una variabile boleana lato server
+var myList = ee.List([1, 2, 3]);
+var serverBoolean = myList.contains(5);
+print(serverBoolean)
+//con il print apro il contenitore ma comunque è un oggetto lato server
+
+//lato client
+var clientConditional;
+//se serverBoolean è vero scrivi vero se è falso scrivi falso
+if (serverBoolean) {
+  clientConditional = true;
+} else {
+  clientConditional = false;
+}
+print(clientConditional); 
+//mi dice che è lato client ma non è vero??
+ 
+//lato server
+var serverConditional = ee.Algorithms.If(serverBoolean, 'True!', 'False!');
+print(serverConditional); 
+//mi dice che è lato server infatti è corretto
+
 
