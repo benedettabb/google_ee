@@ -1,0 +1,152 @@
+//STRINGA
+
+var stringa = 'stringa'
+print (stringa)
+print (typeof(stringa))
+
+//NUMERO
+
+//numero (non c'è distinzione tra integer e float)
+var num = 10.8
+print (num)
+print(typeof(num))
+
+
+//LISTA
+
+//lista di oggetti
+var list = [4,5, 'thrj', 5434, 'kdjkss4']
+print (list)
+//seleziono solo un elemento
+print (list[2])
+//il tipo è:oggetto
+print(typeof(list))
+
+//DIZIONARIO
+
+// creo un oggetto con dentro coppie di valori
+var object = {
+  foo: 'bar',
+  baz: 13,
+  stuff: ['this', 'that', 'the other thing']
+};
+print('Dictionary:', object);
+// stampo un solo elemento del dizionario
+print('Print foo:', object['foo']);
+// lo stesso usando il punto.
+print('Print stuff:', object.stuff);
+
+//FUNZIONE
+
+/*quesa funzione ha un parametro, che si chiama element
+e ritorno l'elemento stesso. Non ci sono altri argomenti*/
+var specchio = function(element) {
+  return element;
+};
+print(specchio('sono una funzione'));
+
+//-----EARTH ENGINE OBJECT------------------------------------------------------------------------------------------------------------------------------
+
+//STRINGA
+
+//definisco un stringa
+var astring = 'STRINGA'
+//mando la stringa sul server con la funzione di gee
+var estring = ee.String (astring)
+//il tipo di astring è stringa
+print(typeof(astring))
+//il tipo di estring è un oggetto, perchè creato con la funzione di gee
+print(typeof(estring))
+
+
+//posso anche definirla direttamente nel server
+var server_string =eeString ('stringa nel cloud')
+print (server_string)
+
+//NUMERO
+
+//prendo un numero dal server con Math.E
+var serverNumber = ee.Number(Math.E);
+print('e=', serverNumber);
+/*questo numero è stato creato con una funzione del server quindi
+esiste solo nel cloud! il tipo è un oggetto
+se voglio farci qualcosa devo utilizzare altr funzioni del server 
+di google earth engine,ad esempio .log*/
+var logE = serverNumber.log();
+print('log(e)=', logE);
+
+/* utilizzo una funzione di java avrò NaN come risultato
+perchè l'oggetto è stato creato con una funzione di gee*/
+var logE = Math.log(serverNumber)
+print (logE)
+
+
+//LISTA
+
+//creo una lista lato client
+var lista_client = ['6','7',19, 9]
+//posso estrapolare un elemento dalla lista
+print(lista_client[0])
+//la lista è un tipo oggetto
+print(typeof(lista_client))
+
+//creo una lista sul server
+var lista_server = ee.List (['r','l','i'])
+print (lista_server)
+//su Docs ci sono le funzioni applicabili alla lista, ad esempio sequence
+var sequence = ee.List.sequence (4,10,1)
+print(sequence)
+
+// per estrarre un valore da una ee.List uso get
+var value = lista_server.get(0)
+print(value)
+var value2 = sequence.get(2);
+print('Value at index 2:', value2);
+
+/*per aggiungere un valore ad una lista si usa .add
+ma questo da degli errori perche gee non distringue i tipi di oggetti
+da una lista*/
+//print (value2.add(12))
+//per correggere l'errore si usa ee.Number
+print (ee.Number(value2).add(12))
+//in questo caso conta i numeri da 4 a 10 e aggiunge 12.
+//come si aggiugne un numero alla lista quindi?
+
+//DIZIONARIO
+
+//anche il dizionario può essere creato sul server con una funzione
+var dizionario = ee.Dictionary ({
+  cosa0:0,
+  cosa1:1,
+  cosa2:2,
+  cosa3:3,
+})
+
+print (dizionario)
+
+//altro esempio
+var dictionary = ee.Dictionary({
+  e: Math.E,
+  pi: Math.PI,
+  phi: (1 + Math.sqrt(5)) / 2
+});
+
+// prendere e stampare un valore dal dizionario
+print('Euler:', dictionary.get('e'));
+print('Pi:', dictionary.get('pi'));
+print('Golden ratio:', dictionary.get('phi'));
+
+// prendere tutte le key del dizionario
+print('Keys: ', dictionary.keys());
+
+/*una volta che si usa la funzione ee.Dictionary bisogna usare metodi di gee
+e non di java script dictionary*/
+
+//il tipo di oggetto è un oggetto, non un numero
+print (typeof(dictionary.get('e')))
+//per farci qualsiasi cosa devo estrarlo
+var estraggo_num = ee.Number(dictionary.get('e'))
+print(typeof(estraggo_num))
+//però è sempre un oggetto...
+
+
