@@ -106,7 +106,7 @@ print('Value at index 2:', value2);
 /*per aggiungere un valore ad una lista si usa .add
 ma questo da degli errori perche gee non distringue i tipi di oggetti
 da una lista*/
-//print (value2.add(12))
+//print (value2.add(12)) --errore
 //per correggere l'errore si usa ee.Number
 print (ee.Number(value2).add(12))
 //in questo caso conta i numeri da 4 a 10 e aggiunge 12.
@@ -144,10 +144,10 @@ e non di java script dictionary*/
 
 //il tipo di oggetto è un oggetto, non un numero
 print (typeof(dictionary.get('e')))
-//per farci qualsiasi cosa devo estrarlo
-var estraggo_num = ee.Number(dictionary.get('e'))
-print(typeof(estraggo_num))
-//però è sempre un oggetto...
+//per farci qualsiasi cosa devo estrarlo con .getInfo
+var estraggo_num = dictionary.get('e').getInfo()
+print (estraggo_num2)
+print(typeof(estraggo_num2))
 
 // DATA
 
@@ -173,3 +173,68 @@ var theDate = ee.Date.fromYMD({
   year: 2017
 });
 print('theDate:', theDate);
+
+
+
+//-----CLIENT VS. SERVER-------------------------------------------------------------------------------------------------------------------------------
+//stringa lato client
+var clientString = 'I am a String';
+print(typeof clientString);  
+//stringa lato server
+var serverString = ee.String('I am not a String!');
+print(typeof serverString);  
+//non è una stringa ma un oggetto!
+print(serverString instanceof ee.ComputedObject)
+/* è un ee.ComputedObject, cioè il contenitore (proxy object) di qualcosa che
+è nel server. 
+posso scoprire che c'è nel contenitore stampando*/
+print(serverString);
+//oppure posso vedere com'è il contenitore stesso
+print (serverString.toString())
+
+//se voglio manipolare lato client quello che sta dentro il contenitore
+var cheStringa = serverString.getInfo()
+print (cheStringa)
+//torna ad essere una stringa!!!!!!!!!!!
+print(typeof(cheStringa))
+  
+/*get.Info è una cosa molto potente perchè apre il proxy object!! se ci sono molte cose dentro
+può creare problemi. è sempre meglio FARE TUTTO SUL SERVER*/
+ 
+  
+//LOOPING
+  
+/*tutte le cose sul cliente sono fatte dalla CPU del mio pc
+le cose server si connettono in qualche modo a gee, quindi è meglio per grandi calcoli
+questa è una lista lato client. sconsigliata..
+prima si crea una variabile vuota*/
+var clientList = [];
+//si usa un ciclo for
+for(var i = 0; i < 8; i++) {
+  clientList.push(i + 1);
+}
+print(clientList);
+
+//la stessa lista può essere fatta sul server
+//creo una lista che va da 0 a 7 compresi
+var serverList = ee.List.sequence (0,7);
+/*creo una funzione. per applicare questa funzione (parametro n) 
+ad ogni oggetto della lista uso .map*/
+serverList = serverList.map(function(n){
+  return ee.Number(n).add(1)
+})
+//qui non posso utilizzare  i + 1 - devo usare una funzione server
+print(serverList)
+//n è una cosa che esiste sono nel server, quindi il print non funziona
+//print(n) --errore
+
+//ovviamente la stessa lista avrei potuto crearla semplicemente:
+var serverListSimple = ee.List.sequence(1,8);
+
+//la lista client può essere convertira in server
+var convertedList = ee.List(clientList);
+print (convertedList)
+  
+//CONDITIONALS
+  
+
