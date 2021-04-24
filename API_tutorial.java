@@ -311,6 +311,46 @@ var potenza = function (n){
 var list_potenza = disparilist.map (potenza)
 print (list_potenza)
 
+ //-------------------- ---------------------- ---------------------
   
+//come fare se voglio applicare un algoritmo solo alla parte del dataset
+//che soddisfa certe condizioni?
+//carico landast8collection
+var collection = ee.ImageCollection ("LANDSAT/LC08/C01/T1_TOA");
+
+//filtro la collezione per valori <40 su sun elevation
+var under = collection.filter(ee.Filter.lt('SUN_ELEVATION', 40 ))
+//filtro la collezione per valori >= 40 su sun elevation
+var above = collection.filter(ee.Filter.gte('SUN_ELEVATION', 40))
+
+
+//creo la funzione applicata a under in tutti gli elementi
+var processed1 = under.map(function(image){
+  return image.multiply(2)
+})
+
+var processed2 = above
+
+//unisci le collezioni in un'unica collezione
+var final = processed1.merge(processed2)
+
+print(final)
+
+//-----------CUMULATIVE INTERACTIONS--------------------------------------------------------------------------------------------
+ 
+  
+//crea una serie di fibonacci con una funzione
+var algorithm = function(current, previous) {
+  previous = ee.List(previous);
+  var n1 = ee.Number(previous.get(-1));
+  var n2 = ee.Number(previous.get(-2));
+  return previous.add(n1.add(n2));
+};
+
+// Compute 10 iterations.
+var numIteration = ee.List.repeat(1, 10);
+var start = [0, 1];
+var sequence = numIteration.iterate(algorithm, start);
+print(sequence);  // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
   
 
