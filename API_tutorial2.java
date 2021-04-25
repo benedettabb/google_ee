@@ -237,6 +237,88 @@ Map.addLayer (l8, {min:0, max:0.3, bands: ['B4', 'B3', 'B2']}, 'mosaic', true)
   
 //-------------GRAFICO-------------------------------------------------------------------------------------------------------------------
 
+  
+//creo un grafico con il valore di NDVI nel tempo
+//inserisco il punto di interesse 
+var point = ee.Geometry.Point (12,46)
+//carico il dataset filtrato per la geometria, la data
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+  .filterBounds (point)
+  .filterDate ('2018-01-01','2018-12-31')
+
+print(l8)
+
+//creare una funzione che calcola l'ndvi e ritorna image+ndvi
+//applico questa funzione ad ogni immagine del dataset l8 con la funzione map
+var withNDVI = l8.map (function(image){
+  var ndvi = image.normalizedDifference(['B5','B4']).rename('ndvi');
+  return image.addBands(ndvi)
+});
+
+print(withNDVI)
+
+//mostro nella mappa le immagini + ndvi
+Map.addLayer (withNDVI, {min:-1, max:1, bands: ['ndvi'], palette: ['blue','yellow','green']}, 'withNDVI', true)
+Map.centerObject (point, 6)
+
+//creo un grafico con ui.Chart per vedere com'è cambiato l'Ndvi durante l'anno 2018
+var grafico = ui.Chart.image.series ({
+  imageCollection: withNDVI.select('ndvi'),
+  region: point,
+  reducer: ee.Reducer.first (),
+  scale:30
+}). setOptions ({title: 'ndvi over time'})
+
+print(grafico)
+//il grafico può essere scaricato in CSV oppure PNG
+
+
+  
+//-------------------CLOUD MASK landsat-------------------------------------------------------------------------------------------
+
+//creo una funzione per filtrare le immagini Landsat e ottenere un NDVI e un grafico NDVI più pulito
+//seleziono il punto
+var point = ee.Geometry.Point([30, -3]);
+
+//carico il dataset
+var l8 = ee.ImageCollection("LANDSAT/LC08/C01/T1_TOA")
+  .filterBounds(point)
+  .filterDate ('2020-01-01','2020-12-31')
+print(l8);
+
+//lo aggiungo subito alla mappa
+Map.addLayer (l8, {min:0,max:0.3, bands: ['B4','B3','B2']}, 'true colour',1);
+Map.centerObject (point, 8)
+
+//applico una funzione alla collezione l8 (uso map per applicarla ad ogni immagine)
+var cloudLessNDVI = l8.map(function(image){
+  /*questo algoritmo prende l'immagine landsat TOA e aggiunge una banda (colud) 
+  che è un indice di nuvolosità da 0 a 100*/
+  var cloud = ee.Algorithms.Landsat.simpleCloudScore (image).select('cloud');
+  //creo una maschera per le immagini con cloud>20
+  var mask =cloud.lte(20)
+  //calcola l'ndvi tra le bande di (image) e rinomina la banda
+  var ndvi = image.normalizedDifference(['B5','B4']).rename('ndvi');
+  //aggiunge la banda ndvi e applica la maschera
+  return image.addBands(ndvi).updateMask (mask);
+}); 
+
+
+//imposto i paramtri di visualizzazione per la banda ndvi
+var visParam = {min:-1, max:1, bands: 'ndvi', palette: ['green','pink']};
+//carico il layer con ndvi nella mappa
+Map.addLayer (cloudLessNDVI, visParam, 'with_cloudlessNDVI', 1)
+
+
+//creo il grafico per questo NDVI
+var grafico = ui.Chart.image.series ({
+  imageCollection: cloudLessNDVI.select ('ndvi'),
+  region: point,
+  reducer: ee.Reducer.first(),
+  scale: 30,
+}).setOptions ({title: 'masked NDVI nel 2020'});
+
+print(grafico);
 
   
   
