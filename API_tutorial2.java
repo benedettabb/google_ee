@@ -230,7 +230,14 @@ var greenest = bandNDVI.qualityMosaic('ndvi')
 //questo per scegliere immagini dello stesso periodo e ridurre la disconinuità
 Map.addLayer (bandNDVI, {min:0, max:0.3, bands: ['B4', 'B3', 'B2']}, 'quality mosaic', true)
 Map.addLayer (l8, {min:0, max:0.3, bands: ['B4', 'B3', 'B2']}, 'mosaic', true)
+
   
+  
+  
+  
+//-------------GRAFICO-------------------------------------------------------------------------------------------------------------------
+
+
   
   
 
