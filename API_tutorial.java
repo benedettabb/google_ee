@@ -380,4 +380,74 @@ Map.addLayer (SRTM, palette, 'SRTM palette', 1)
 
   
 //fare calcoli con un'immagine a una banda
+  
+//inserisco il dataset SRTM 90m
+var dataset = ee.Image ('CGIAR/SRTM90_V4')
 
+//applico una funzione per calcolare la pendenza in percentuale. per ogni pixel si usano i 4 pixel vicini
+var slope = ee.Terrain.slope (dataset)
+//definisco una palette
+var palette = ['red', 'pink', 'yellow', 'green']
+//definisco i parametri di visualizzazione
+var visPar = {min:0, max: 1, palette: palette}
+//aggiungo l'immaagine alla mappa
+Map.addLayer (slope, visPar, 'slope', true)
+Map.setCenter (36.6, -3.3, 7)
+  
+-----------------------------------------------------------------------------------------------------
+//inserisco il dataset SRTM 90m
+var dataset = ee.Image ('CGIAR/SRTM90_V4')
+
+//utilizzo la funzione ee.Terrain.aspect per ottenere l'aspect in gradi
+var aspect = ee.Terrain.aspect (dataset)
+print (aspect)
+
+//converto da gradi in radianti (diviso 180 per pigreco) 
+var radianti = aspect.multiply(Math.PI).divide (180)
+//divido per il seno
+var sin = radianti.sin()
+
+//aggiungo l'immaagine alla mappa
+Map.addLayer (sin, {min:-1, max:1}, 'sinImage', 1)
+Map.setCenter (36.6, -3.3, 7)
+
+-------------------------------------------------------------------------------------------------------
+//ora voglio calcolare l'elevazione media in un zona
+//inserisco il dataset SRTM 90m
+var dataset = ee.Image ('CGIAR/SRTM90_V4')
+print(typeof(dataset))
+
+//utilizzo il metodo reduceRegion che è disponibile per le immagin (object)
+var media_elev = dataset.reduceRegion({
+  reducer: ee.Reducer.mean(),
+  geometry: geometry,
+  //è importante definire la scala: dimensione in pixel in m da utilizzare
+  scale: 90
+})
+//in teoria media_elev è un dizionario dal quale estrarre l'elevazione
+print(media_elev)
+var elevazione_media = media_elev.get('elevation')
+print (elevazione_media)
+
+//calcolo la pendenza
+var slope = ee.Terrain.slope(dataset)
+//calcolo la pendenza media nello stesso modo
+var media_slope = slope.reduceRegion({
+  reducer: ee.Reducer.mean(),
+  geometry: geometry,
+  scale: 90
+})
+print(media_slope)
+
+//per vedere la scala in metri di un dataset
+var scale = dataset.projection().nominalScale();
+print('SRTM scale in meters', scale);
+
+
+
+//--------IMAGE COLLECTION------------------------------------------------------------------------------------------------------
+
+//inserisco una collezione di imamgini
+  
+
+  
