@@ -338,7 +338,9 @@ print(final)
 
 //-----------CUMULATIVE INTERACTIONS--------------------------------------------------------------------------------------------
  
-  
+/*per fare un'operazione sequenziale, in cui il risultato viene utilizzato per l'operazione seguente
+si usa iterate(). visto che sono operazioni sequenziali impiegano più tempo. se è possibile è meglio usare map()
+
 //crea una serie di fibonacci con una funzione
 var algorithm = function(current, previous) {
   previous = ee.List(previous);
@@ -352,5 +354,30 @@ var numIteration = ee.List.repeat(1, 10);
 var start = [0, 1];
 var sequence = numIteration.iterate(algorithm, start);
 print(sequence);  // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+
+
+//------------API -----------------------------------------------------------------------------------------------------------------------
+
+//inserire un immagine nella mappa
+//carico un immagine dal dataset:SRTM digital elevation, della NASA, pixel size 90m
+//ee.Image è un costrutture di immagini - l'argomento è il nome stringa del dataset
+var SRTM = ee.Image("CGIAR/SRTM90_V4")
+Map.setCenter (-110, 38, 6)
+Map.addLayer (SRTM, {min: 0, max: 4500}, 'SRTM', 1)
+/*se nn si specificano i valori di stretching gee inserisce numeri di default che
+in questo caso sarebbero [-32768, 32767] perchè l'immagine è a 16bit (anche se effettivamente)
+i valori vanno da -444 a 8806*/
+print (SRTM, 'srtm')
+/*sulla console c'è scritto che l'unica banda si chiama
+elevation ed è signed int16. se fosse stata float i valori sarebbero
+visualizzati per defult da 0 a 1, se fosse stata byte da 0 a 225*/
+
+//definisco dei parametri di visualizzazione
+//la palette è una lista di elementi stringa, dal massimo al minimo valore (con stretching lineare)
+var palette= {min:0, max: 3000, palette: ['red','yellow','green']}
+//aggiugno un nuovo layer con quei paramentri
+Map.addLayer (SRTM, palette, 'SRTM palette', 1)
+
   
+//fare calcoli con un'immagine a una banda
 
