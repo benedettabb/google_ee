@@ -448,6 +448,15 @@ print('SRTM scale in meters', scale);
 //--------IMAGE COLLECTION------------------------------------------------------------------------------------------------------
 
 //inserisco una collezione di imamgini
-  
+//importo i dati landsat8 OLI, Toa = top-of-atmosphere (TOA) reflectance
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
+
+//aggiungo una variabile filtro spaziale
+var filtroSpaziale = l8.filterBounds (point);
+//aggiungo una variabile filtro temporale (applicata sull'immagine filtrata sul point)
+var filtroTemporale = filtroSpaziale.filterDate ('2017-06-17', '2017-07-17');
+
+print (filtroTemporale)
+
 
   
