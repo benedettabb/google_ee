@@ -166,4 +166,78 @@ Map.addLayer(mosaic, {}, 'custom mosaic', 0);
 
 //-----NDVI---------------------------------------------------------------------------------------------------------------------
 
+// inserico la geometria (vettore) con le coordinate long e lat
+var point = ee.Geometry.Point (95, 45)
+
+//carico il dataset filtrato per la geometria, la data, e seleziono l'immagine con valore di cloud cover più basso
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+  .filterBounds (point)
+  .filterDate ('2018-06-01','2018-09-01')
+  .sort('CLOUD_COVER')
+  .first()
+print(l8)
+
+//definisco la variabile vicino infrarosso
+var nir = l8.select ('B5')
+//definisco la variabile rosso
+var red = l8.select ('B4')
+//ndvi = nir-red/(nir+red)
+var ndvi = nir.subtract(red).divide(nir.add(red))
+print(ndvi, 'ndvi')
+
+//sii può anche applicare la funzione di gee
+var ndvi_shortcut = l8.normalizedDifference('B5','B4').rename ('ndvi_shortcut')
+
+
+Map.setCenter (95, 45, 6)
+Map.addLayer (ndvi, {min:-1, max:1, palette:['white','green']}, 'ndvi')
+Map.addLayer (ndvi_shortcut, {min:-1, max:1, palette:['white','green']}, 'ndvi')
+
+  
+  
+---------------------------------------------------------------------------------------------------------------
+
+
+//voglio inserire la banda ndvi in ogni immagine di una collezione
+// inserico la geometria (vettore) con le coordinate long e lat
+var point = ee.Geometry.Point (95, 45)
+
+//carico il dataset filtrato per la geometria, la data
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+  .filterBounds (point)
+  .filterDate ('2018-06-01','2018-06-30')
+
+print(l8)
+
+//creare una funzione che calcola l'ndvi e ritorna image+ndvi
+var funzione = function(image){
+  var ndvi = image.normalizedDifference(['B5','B4']).rename('ndvi');
+  return image.addBands(ndvi)
+}
+
+//applico questa funzione ad ogni immagine del dataset l8 con la funzione map
+var bandNDVI = l8.map(funzione)
+print(bandNDVI)
+
+//mostro nella mappa le immagini + ndvi
+Map.addLayer (bandNDVI, {min:0, max:0.3, bands: ['B5', 'B4', 'ndvi']}, 'new image', true)
+Map.setCenter (95, 45, 6)
+  
+/*uso la funzione qualityMosaic per creare un'immagine composta in cui ogni pixel
+ha il massimo valore di NDVI*/
+var greenest = bandNDVI.qualityMosaic('ndvi')
+
+//questo per scegliere immagini dello stesso periodo e ridurre la disconinuità
+Map.addLayer (bandNDVI, {min:0, max:0.3, bands: ['B4', 'B3', 'B2']}, 'quality mosaic', true)
+Map.addLayer (l8, {min:0, max:0.3, bands: ['B4', 'B3', 'B2']}, 'mosaic', true)
+  
+  
+  
+
+
+
+
+
+
+
 
