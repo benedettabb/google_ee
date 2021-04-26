@@ -331,6 +331,58 @@ Export.image.toDrive({
 });
 
 
+//--------------DEFERRED EXECUTIONS--------------------------------------------------------------------------------------------------------------
+
+//quando si scrive un codice in gge questo viene "codificato" in un JSON object e poi è spedito al server
+//la "spedione" e il calcolo non viene eseguito finché non è spplicitamente richiesto ad es con pint() o Map.addLayer()
+var image = ee.Image('CGIAR/SRTM90_V4');
+//con questo ordine viene creato il JSON object
+var operation = image.add(10);
+print (operation); //---l'ordine è inviato al server attraverso ii JSON object. per vedere il JSON di risposta di può selezionare JSON nella console oppure:
+print (operation.toString());
+
+//-------------------SCALE--------------------------------------------------------------------------------------------------------------------------
+
+/*scale= pixel resolution. la scala viene specificata nell'output e il risultato viene mostrato coerentemente con questa scala
+al contrario di quello che avviene in GIS in cui la risoluzione è determinata dall'input.
+Le immagini su gee esistono a diverse scale (secondo una logica piramidale), in cui il livello più basso rappresenta l'immagine alla sua risoluzione
+originaria - salendo i dati vengono aggregati finché l'immagine non raggiunge la dimensione di 256x256 pixel.
+per immagini con valori continui l'aggregazione viene fatta con la media dei pixel nell'immagine più bassa nella piramide;
+per immagini con valori discreti l'aggregazione viene fatta con campioni di pixel a livello più basso (di default nearest neighbor)
+Quando si aggiunge un layer alla mappa il livello di zoom impostato determina la scala a cui è richiesa l'immagine di input*/
+
+//aggiungo un'immagine in banda 4 di Landsat 
+var image = ee.Image('LANDSAT/LC08/C01/T1/LC08_044034_20140318').select('B4');
+print (image)
+Map.centerObject (image)
+
+//creo una funzione che mi permette di stampare ad una (scala:argomento della funzione)
+var printAtScale = function (scale) {
+  print ('pixel resolution:'+scale+'m',
+  //applico un riduttore all'immagine landsat
+  image.reduceRegion ({
+    //gli argomenti del riduttore sono il riduttore da applicare
+    reducer: ee.Reducer.first (),
+    //questo riduttore da come risultato il primo input
+    //la geometria: il centro dell'immagine
+    geometry: image.geometry().centroid(),
+    //la scala
+    scale: scale
+  }).get ('B4'));
+}
+
+//con scala 10m il pixel centrale nell'immagine ha questo valore:
+printAtScale (10)
+//con scala 20m...
+printAtScale (20)
+printAtScale (30)
+printAtScale (40)
+printAtScale (50)
+/*non è detto che i valori rimangano uguali, perchè per ogni scala è selezionato un diverso 
+livello della piramide. per scale simili l'applicazione dell'algoritmo nearest neighbor
+fa si che i pixel abbiano valori uguali*/
+  
+//i diversi livelli delle immagini sono anche riproiettati  (maps mercator (EPSG:3857)) prima di essere visualizzati
 
 
 
