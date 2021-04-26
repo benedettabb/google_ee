@@ -385,6 +385,42 @@ fa si che i pixel abbiano valori uguali*/
 //i diversi livelli delle immagini sono anche riproiettati  (maps mercator (EPSG:3857)) prima di essere visualizzati
 
 
+//------------------PROIEZIONI-----------------------------------------------------------------------------------------------------------------------
 
+/*gee utilizza il datum geodetico WGS84 (basato sull'ellissoide WGS84)
+è un sistema proiettato (coordinate X e Y espresse in metri) pseudo -mercatore
+EPSG: 3857.
+Come per la scala, anche la proiezione è definita dall'output. Es modis ha una proiezione
+sinusuoidale - quando lo chiamo in gee l'input viene richiesto nella proiezione di pseudo-merc*/
+
+var modis = ee.Image('MODIS/006/MOD13A1/2014_05_09').select(0);
+print (modis)
+var visParams = {min:0.15, max:0.7};
+var rescaled = modis.unitScale(-2000, 10000);
+Map.addLayer (modis, visParams, 'FireMask',1 );
+Map.centerObject (modis, 8)
+
+
+
+//si può controllare la proiezione di un'immagine con projection
+var image = ee.Image('LANDSAT/LC08/C01/T1/LC08_044034_20140318').select(0);
+//stampo la proiezione
+print('Projection, crs, and crs_transform:', image.projection());
+//con nominal scale vedo la risoluzione originaria dell'immagine (l'immagine più bassa della piramide)
+print('Scale in meters:', image.projection().nominalScale());
+/*visto che le bande di un'immagine possono avere proiezione diversa,
+chiamando projection() su più bande si può avere un errore*/
+var image = ee.Image('LANDSAT/LC08/C01/T1/LC08_044034_20140318');
+print('Projection, crs, and crs_transform:', image.projection()) //--errore
+
+
+/*di solito non c'è bisogno di specificare la proiezione.
+in alcuni casi invece la proiezione di un output può essere ambigua, ad esempio
+quando si mosaica una image collection con immagini con diverse proiezioni*/
+
+/*si può forzare gee ad eseguire il risultato in una certa proiezione con
+reproject () */
+var proj = ee.Projection(...qualche proiezione);
+var output = collection.reduce(...qualche proiezione).reproject(proj);
 
 
