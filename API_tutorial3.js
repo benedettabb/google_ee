@@ -68,3 +68,68 @@ var renameBands = S2.select (
 );
 //add layer con nuovi parametri di visualizzazione
 Map.addLayer (renameBands, {max:2000, bands:['rosso', 'verde','blue']}, 's2 renamed', 1);
+
+//creo una funzione che calcola l'NDVI e lo aggiunge come banda alla imageCollection
+var funzione = function(image){
+  var ndvi = image.normalizedDifference(['B5','B4']).rename('ndvi');
+  return image.addBands(ndvi)
+};
+var withNDVI = S2.map (funzione);
+
+//aggiungo l'ndvi alla mappa
+var ndviVis = {min:0, max: 0.3, bands: 'ndvi',palette: ['07fffc', 'f5ff2e', '05940e']};
+Map.addLayer (withNDVI, ndviVis, 'ndvi',1)
+
+//creo una funzione che maschera i valori di ndvi <0.1
+var funzioneMask = function (image){
+  //.gte da come risultato 1 se il valore di ndvi (primo valore) è più grande di 0.1 (secondo valore)
+  var mask = image.select('ndvi').gt(0.1);
+  return image.updateMask(mask)
+}
+
+//applico la funzione maschera ad entrambe le immagini
+var maskedNDVI = withNDVI.map (funzioneMask)
+print (maskedNDVI)
+//ho messo 4 colori nella palette perchè i valori vanno da 0.2 a 1 (8 valori di NDVI)
+Map.addLayer (maskedNDVI, {min:0, max:1, bands: 'ndvi', palette: ['ff7dcd','ff09cd','ff0000','8c0101']}, 'ndvi mask', 1)
+
+
+//---------convertire le immagini in 8bit per esportarle, RGB o grey scale----------------------------
+//si usa image.visualize -- funziona nelle immagini, non nelle image collection
+var S2_sudRGB = dataset1.visualize ({
+  bands: ['B4', 'B3', 'B2'],
+  min: 0, 
+  max: 2000
+})
+
+print(S2_sudRGB)
+
+
+//però io voglio farlo in un'imageCollection. 
+//allora definisco una funzione e la applico ad ogni immagine con  .map()
+//prima definisco i parametri di visualizzazione
+//per RGB:
+var bit8RGBVis = {bands: ['B4', 'B3', 'B2'], min: 0, max: 2000};
+//per masked ndvi
+var bit8NDVIVis = {bands: 'ndvi', min:0.2, max: 1, palette: ['ff7dcd','ff09cd','ff0000','8c0101']}
+
+//definisco la funzione per RGB
+var funzione8bit = function (image) {
+  return image.visualize (bit8RGBVis)
+};
+
+//applico la funzione a S2
+var S28bit = S2.map(funzione8bit)
+// ottengo un'immagine con 2 elementi, ciascuno con 3 bande
+print(S28bit, '8 bit Sentinel 2');
+
+
+//definisco la funzione per masked ndvi 
+var funzione8bit = function (image) {
+  return image.visualize (bit8NDVIVis)
+};
+
+//applico laa funzione a masked ndvi
+var maskedNDVI8bit = maskedNDVI.map(funzione8bit)
+// ottengo un'immagine con 2 elementi, ciascuno con 3 bande
+print(maskedNDVI8bit, '8 bit NDVI masked');
