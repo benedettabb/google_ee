@@ -456,4 +456,41 @@ var fractions = image.unmix([urban, veg, water]);
 Map.addLayer(fractions, {}, 'unmixed');
 
 
+
+//-----------------TEXTURE--------------------------------------------------------------------------------------------------------------------
+
+//carico un'immagine dal dataset naip -National Agriculture Imagery Program- ris 10m, nel territorio degli USA dal 2003 al 2019 in diversi cicli
+var image = ee.Image("USDA/NAIP/DOQQ/m_3910515_sw_13_060_20190919")
+print(image, 'image');
+
+//aggiungo la visualizzazione in RGB e infrarosso falso colore
+var visRGB = {min:0, max: 400, bands: ['R','G','B']};
+var visNRG = {min:0, max: 400, bands: ['N','R','G']};
+Map.addLayer (image, visRGB, 'RGB',1);
+Map.addLayer (image, visNRG, 'NRG', 1);
+Map.centerObject (image, 14);
+
+//seleziono la banda dell'infrarosso
+var nir = image.select('N');
+
+// Definisco un kernel circolare con raggio 4 pixel
+var square = ee.Kernel.square({radius: 4});
+
+// entropy () calcola l'entropia in ciascuna banda, utilizzando il kernel centrato per ogni pixel
+var entropy = nir.entropy(square);
+//valori di entropia bassi vengono visualizzati in blu (es corpi d'acqua) valori di entropia alti sono visualizzati in rosso
+Map.addLayer(entropy, {min: 1, max: 5, palette: ['0000CC', 'CC0000']}, 'entropy');
+             
+/*Calcola il gray-level co-occurrence matrix (GLCM): tabulazione della frequenza con cui diverse combinazioni di valori di luminosità dei pixel 
+(livelli di grigio) si verificano in un'immagine. Conta il 
+numero di volte in cui un pixel di valore X si trova accanto a un pixel di valore Y, 
+in una particolare direzione e distanza. e quindi ricava le statistiche da questa tabulazione.*/
+var glcm = nir.glcmTexture({size: 4});
+//dall'immagine risultante seleziona la banda contrsto
+var contrast = glcm.select('N_contrast');
+Map.addLayer(contrast, {min: 0, max: 1500, palette: ['0000CC', 'CC0000']}, 'contrast');
+
+
+
+
   
