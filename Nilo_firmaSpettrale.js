@@ -10,13 +10,30 @@ var image = ee.ImageCollection ('COPERNICUS/S2_SR')
   .first();
 print(image);
 
+
+var sentinel1 = ee.ImageCollection("COPERNICUS/S1_GRD")
+  .filterMetadata ('resolution_meters', 'equals', 10)
+  .filter (ee.Filter.eq ('instrumentMode', 'IW'))
+  .filter (ee.Filter.listContains ('transmitterReceiverPolarisation', 'VV'))
+  .filter (ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+  .filterDate('2020-09-05', '2020-10-06')
+  .filterBounds(roi)
+print(sentinel1, 'sentinel 1')
+var s1 = sentinel1.mosaic()
+
 var visParams = {min:0, max:5000, bands:['B4','B3','B2']};
 Map.addLayer (image, visParams, 'sentinel 2', true);
-Map.centerObject(image, 10);
+Map.addLayer (s1, {min:-15, max:10, bands:['VV', 'VH']}, 'sentinel 1', true);
+Map.centerObject(roi, 8);
+
+
+/*var clipped2 = image.clipToBoundsAndScale(rec);
+var clipped1 = sentinel1.clipToBoundsAndScale (rec);
+Map.addLayer (clipped2, visParams, 'sentinel 2 clipped', 1);*/
+
 
 var subset = image.select ('B[1-7]');
 var samples = ee.FeatureCollection ([desert,vegetation, water, urban]);
-
 
 var chartStyle = {
   title: 'S2 firma spettrale',
@@ -43,4 +60,3 @@ var grafico = ui.Chart.image.regions (
   
 print(grafico);
 
-//var sentinel1 = ee.ImageCollection()
