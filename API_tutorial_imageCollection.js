@@ -40,3 +40,28 @@ print('cloud coverage', cloudCover);
 var lessVeg = collection.sort ('VEGETATION_PERCENTAGE').first()
 print('Image with less vegetation pixels', lessVeg)
 
+
+//----FILTERING------------------------------------------------------
+
+// carico i dati landsat5 filtrati per data e roi
+var collection = ee.ImageCollection('LANDSAT/LT05/C01/T2')
+  .filterDate('1987-01-01', '1990-05-01')
+  .filterBounds(ee.Geometry.Point(25.8544, -18.08874));
+
+// nella variabile filtered vanno tutte le immagini con valori di image quality uguali a 9
+var filtered = collection
+  .filterMetadata('IMAGE_QUALITY', 'equals', 9);
+
+// creo le due immagini composte con l'algoritmo specifico
+var badComposite = ee.Algorithms.Landsat.simpleComposite(collection, 75, 3);
+var goodComposite = ee.Algorithms.Landsat.simpleComposite(filtered, 75, 3);
+
+// li aggiungo alla mappa
+Map.setCenter(25.8544, -18.08874, 13);
+Map.addLayer(badComposite,
+             {bands: ['B3', 'B2', 'B1'], gain: 3.5},
+             'bad composite');
+Map.addLayer(goodComposite,
+             {bands: ['B3', 'B2', 'B1'], gain: 3.5},
+             'good composite');
+
