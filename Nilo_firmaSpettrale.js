@@ -153,7 +153,7 @@ var visParams = {min:0, max:5000, bands:['B4','B3','B2']};
 
 //aggiungo le due immagini ritagliate alla mappa 
 Map.addLayer (s2clipped, visParams, 'sentinel 2', true);
-Map.addLayer (s1clipped, {min:-15, max:10, bands:['VV', 'VH']}, 'sentinel 1', true);
+Map.addLayer (s1clipped, {min:-15, max:10, bands:'VV'}, 'sentinel 1', true);
 
 //centro la mappa 
 Map.centerObject(roi, 8);
